@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OnCall Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">-->
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner">
+        <a class="brand" href="#">OnCall Dashboard</a>
+    </div>
+</div>
+<div id="main" class="container">
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <td>Team Name</td>
+            <td>Description</td>
+            <td>OnCaller</td>
+            <td></td>
+        </tr>
+        </thead>
+        <!--<tr>-->
+        <!--<td><b>Team Name</b></td>-->
+        <!--<td><b>Schedule Name</b></td>-->
+        <!--</tr>-->
+        <!-- ko foreach: teams -->
+        <tbody>
+        <tr>
+            <td><p data-bind="text: teamName"></p></td>
+            <td><p data-bind="text: description"></p></td>
+            <td><p data-bind="text: onCaller"></p></td>
+            <td>
+                <button data-bind="click: $parent.showAlertBox" class="btn">Alert</button>
+            </td>
+        </tr>
+        </tbody>
+        <!-- /ko -->
+    </table>
+
+</div>
+
+<div id="alert" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="addDialogLabel">Alert</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="inputDescription">Message</label>
+                <div class="controls">
+                    <textarea rows="3" data-bind="value: description" type="text" id="inputDescription"
+                              placeholder="Description" style="width: 300px;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click: newAlert" class="btn btn-primary">Alert</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function TeamsViewModel() {
+        var self = this;
+        self.teamsURI = 'http://oncall-dashboard.herokuapp.com/teams';
+        self.teams = ko.observableArray();
+
+        self.ajaxAsync = function (uri, method, data, parameter) {
+            var request = {
+                url: self.teamsURI.concat(uri).concat(parameter),
+                type: method,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                cache: false,
+                dataType: 'json',
+                data: JSON.stringify(data),
+                error: function (jqXHR) {
+                    console.log("ajax error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        }
+
+        self.ajaxSync = function (uri, method, data, i) {
+            var request = {
+                url: self.teamsURI.concat(uri),
+                type: method,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                cache: false,
+                dataType: 'json',
+                data: JSON.stringify(data),
+                async: false,
+                error: function (jqXHR) {
+                    console.log("ajax error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        }
+
+        self.showAlertBox = function (team) {
+            var alertViewModel = new AlertViewModel(team);
+            ko.applyBindings(alertViewModel, $('#alert')[0]);
+            $('#alert').modal('show');
+        }
+
+        self.ajaxAsync("", 'GET',null,"").done(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var onCallerVar = JSON.parse(self.ajaxSync("/".concat(data[i].teamName).concat("/on-call/"), 'GET').responseText)
+                console.log(onCallerVar)
+                self.teams.push({
+                    teamName: ko.observable(data[i].teamName),
+                    description: ko.observable(data[i].description),
+                    scheduleId: ko.observable(data[i].scheduleId),
+                    onCaller: ko.observable(onCallerVar.firstName.concat(" ").concat(onCallerVar.lastName))
+                });
+            }
+        });
+
+        for (var i = 0; i < self.teams.length; i++) {
+            console.log(self.teams[i])
+        }
+
+        self.alertTeam = function (teamName, description) {
+//            alert("alert");
+            console.log(teamName)
+            console.log(description)
+            self.ajaxAsync("/".concat(teamName).concat("/").concat("alert").concat("/"),
+            "POST", null ,"?message=".concat(description))
+
+        }
+    }
+
+    function AlertViewModel(team) {
+        var self = this;
+        self.team = team
+        self.description = ko.observable();
+
+        self.newAlert = function () {
+            console.log(self.team.teamName())
+            teamViewModel.alertTeam(self.team.teamName(), self.description())
+            $('#alert').modal('hide')
+            self.description("")
+
+        }
+    }
+    var teamViewModel = new TeamsViewModel();
+    ko.applyBindings(teamViewModel, $('#main')[0]);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OnCall Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">-->
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner">
+        <a class="brand" href="#">OnCall Dashboard</a>
+    </div>
+</div>
+<div id="main" class="container">
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <td>Team Name</td>
+            <td>Description</td>
+            <td>OnCaller</td>
+            <td>Schedule id</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </thead>
+        <!-- ko foreach: teams -->
+        <tbody>
+        <tr>
+            <td><p data-bind="text: teamName"></p></td>
+            <td><p data-bind="text: description"></p></td>
+            <td><p data-bind="text: onCaller"></p></td>
+            <td><p data-bind="text: scheduleId"></p></td>
+            <td>
+                <button data-bind="click: $parent.showAlertBox" class="btn">Alert</button>
+            </td>
+            <td>
+                <button data-bind="click: $parent.showModifyBox" class="btn">Modify</button>
+            </td>
+            <td>
+                <button data-bind="click: $parent.delete" class="btn">Delete</button>
+            </td>
+        </tr>
+        </tbody>
+        <!-- /ko -->
+    </table>
+    <td>
+        <button data-bind="click: showAddBox" class="btn">Add</button>
+    </td>
+</div>
+
+<div id="alert" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="alertDialogLabel">Alert</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="inputDescription">Message</label>
+                <div class="controls">
+                    <textarea rows="3" data-bind="value: description" type="text" id="inputDescription"
+                              placeholder="Description" style="width: 300px;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click: newAlert" class="btn btn-primary">Alert</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+
+<div id="add" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="addDialogLabel">Add team</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="addInputTeam">Team</label>
+                <div class="controls">
+                    <input data-bind="value: teamName" type="text" id="addInputTeam" placeholder="Team name"
+                           style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="addInputscheduleId">Schedule</label>
+                <div class="controls">
+                    <input data-bind="value: scheduleId" type="text" id="addInputscheduleId"
+                           placeholder="Schedule name"
+                           style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="addInputDescription">Description</label>
+                <div class="controls">
+                    <textarea rows="3" data-bind="value: description" type="text" id="addInputDescription"
+                              placeholder="Description" style="width: 300px;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click: addTeam" class="btn btn-primary">Add</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+
+<div id="modify" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="modifyDialogLabel">Modify team</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="addInputscheduleId">Schedule</label>
+                <div class="controls">
+                    <input data-bind="value: scheduleId"  type="text" id="modifyInputscheduleId"
+                           placeholder="Schedule name"
+                           style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="addInputDescription">Description</label>
+                <div class="controls">
+                    <textarea rows="3" data-bind="value: description" type="text" id="modifyInputDescription"
+                              style="width: 300px;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click: modifyTeam" class="btn btn-primary">Modify</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function TeamsViewModel() {
+        var self = this;
+        self.teamsURI = 'http://oncall-dashboard.herokuapp.com/teams';
+        self.teams = ko.observableArray();
+
+        self.ajaxAsync = function (uri, method, data, parameter) {
+            var request = {
+                url: self.teamsURI.concat(uri).concat(parameter),
+                type: method,
+                contentType: "application/json; charset=UTF-8",
+                accept: "application/json, text/html",
+                cache: false,
+//                dataType: 'json',
+                data: JSON.stringify(data),
+                error: function (jqXHR) {
+                    console.log("ajax error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        };
+
+        self.ajaxSync = function (uri, method, data) {
+            var request = {
+                url: self.teamsURI.concat(uri),
+                type: method,
+                contentType: "application/json",
+                Accept: "application/json",
+                cache: false,
+                //dataType: 'json',
+                data: JSON.stringify(data),
+                async: false,
+                error: function (jqXHR) {
+                    console.log("ajax error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        };
+
+        self.showAlertBox = function (team) {
+            var alertViewModel = new AlertViewModel(team);
+            ko.applyBindings(alertViewModel, $('#alert')[0]);
+            $('#alert').modal('show');
+        };
+
+        self.delete = function (team) {
+            self.ajaxAsync("/".concat(team.teamName()), 'DELETE', null, "")
+            self.teams.remove(team)
+        };
+
+        self.showAddBox = function () {
+            $('#add').modal('show');
+        };
+        self.showModifyBox = function (oldTeam) {
+            var modifyViewModel = new ModifyViewModel(oldTeam);
+            ko.applyBindings(modifyViewModel, $('#modify')[0]);
+            $('#modify').modal('show');
+        };
+
+        self.add = function (team) {
+            self.ajaxAsync("/", 'POST', team, "").done(function (data) {
+                var onCallerVar = JSON.parse(self.ajaxSync("/".concat(team.teamName).concat("/on-call/"), 'GET').responseText)
+                self.teams.push({
+                    teamName: ko.observable(team.teamName),
+                    description: ko.observable(team.description),
+                    scheduleId: ko.observable(team.scheduleId),
+                    onCaller: ko.observable(onCallerVar.firstName.concat(" ").concat(onCallerVar.lastName))
+                });
+            });
+        }
+
+        self.modify = function (team) {
+            self.ajaxAsync("/", 'PUT', team, "").done(function (data) {
+                var onCallerVar = JSON.parse(self.ajaxSync("/".concat(team.teamName).concat("/on-call/"), 'GET').responseText)
+                self.teams.remove(function(teamItem){
+                    return teamItem.teamName() == team.teamName;
+                })
+
+                self.teams.push({
+                    teamName: ko.observable(team.teamName),
+                    description: ko.observable(team.description),
+                    scheduleId: ko.observable(team.scheduleId),
+                    onCaller: ko.observable(onCallerVar.firstName.concat(" ").concat(onCallerVar.lastName))
+                });
+            });
+        }
+
+        self.ajaxAsync("", 'GET', null, "").done(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var onCallerVar = JSON.parse(self.ajaxSync("/".concat(data[i].teamName).concat("/on-call/"), 'GET').responseText)
+                console.log(onCallerVar)
+                self.teams.push({
+                    teamName: ko.observable(data[i].teamName),
+                    description: ko.observable(data[i].description),
+                    scheduleId: ko.observable(data[i].scheduleId),
+                    onCaller: ko.observable(onCallerVar.firstName.concat(" ").concat(onCallerVar.lastName))
+                });
+            }
+        });
+
+        for (var i = 0; i < self.teams.length; i++) {
+            console.log(self.teams[i])
+        }
+
+        self.alertTeam = function (teamName, description) {
+//            alert("alert");
+            console.log(teamName);
+            console.log(description);
+            self.ajaxAsync("/".concat(teamName).concat("/").concat("alert").concat("/"),
+                    "POST", null, "?message=".concat(description))
+
+        }
+    }
+
+    function AlertViewModel(team) {
+        var self = this;
+        self.team = team;
+        self.description = ko.observable();
+
+        self.newAlert = function () {
+            console.log(self.team.teamName());
+            teamViewModel.alertTeam(self.team.teamName(), self.description());
+            $('#alert').modal('hide');
+            self.description("")
+
+        }
+    }
+
+    function AddViewModel() {
+        var self = this;
+        self.teamName = ko.observable();
+        self.description = ko.observable();
+        self.scheduleId = ko.observable();
+
+        self.addTeam = function () {
+            var team = new Object();
+            team.teamName = self.teamName()
+            team.scheduleId = self.scheduleId()
+            team.description = self.description()
+            teamViewModel.add({
+                teamName: String(self.teamName()),
+                scheduleId: String(self.scheduleId()),
+                description: String(self.description())
+            })
+            $('#add').modal('hide')
+            self.teamName("")
+            self.description("")
+            self.scheduleId("")
+        }
+    }
+
+    function ModifyViewModel(oldTeam) {
+        var self = this;
+        self.description = ko.observable(oldTeam.description())
+        self.scheduleId = ko.observable(oldTeam.scheduleId())
+
+        self.modifyTeam = function () {
+
+            teamViewModel.modify({
+                teamName: String(oldTeam.teamName()),
+                scheduleId: String(self.scheduleId()),
+                description: String(self.description())
+            })
+            $('#modify').modal('hide')
+            self.description("")
+            self.scheduleId("")
+        }
+    }
+    var teamViewModel = new TeamsViewModel();
+    var addViewModel = new AddViewModel();
+    ko.applyBindings(teamViewModel, $('#main')[0]);
+    ko.applyBindings(addViewModel, $('#add')[0]);
+
+</script>
+</body>
+</html>
