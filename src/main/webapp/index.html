@@ -87,17 +87,17 @@
             var request = {
                 url: self.teamsURI.concat(uri).concat(parameter),
                 type: method,
-                "Content-Type": "application/json",
-                Accept: "application/json",
+                contentType: "application/json; charset=UTF-8",
+                accept: "application/json, text/html",
                 cache: false,
-                dataType: 'json',
+//                dataType: 'json',
                 data: JSON.stringify(data),
                 error: function (jqXHR) {
                     console.log("ajax error " + jqXHR.status);
                 }
             };
             return $.ajax(request);
-        }
+        };
 
         self.ajaxSync = function (uri, method, data, i) {
             var request = {
